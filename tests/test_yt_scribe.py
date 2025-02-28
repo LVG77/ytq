@@ -7,4 +7,4 @@ def test_version():
     with runner.isolated_filesystem():
         result = runner.invoke(app, ["--version"])
         assert result.exit_code == 0
-        assert "CLI Version" in result.output
+        assert "yt-scribe version" in result.output

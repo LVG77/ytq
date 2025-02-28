@@ -10,7 +10,11 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License"
 ]
 dependencies = [
-    "typer"
+    "typer",
+    "yt-dlp",
+    "numpy",
+    "anthropic>=0.49.0",
+    "openai>=1.65.1",
 ]
 
 [build-system]
@@ -25,6 +29,7 @@ CI = "https://github.com/lvg77/yt-scribe/actions"
 
 [project.scripts]
 yt-scribe = "yt_scribe.cli:app"
+yts = "yt_scribe.cli:app"
 
 [project.optional-dependencies]
 test = ["pytest"]

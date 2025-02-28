@@ -6,20 +6,20 @@ This checklist outlines every step needed to build and test the yt-scribe CLI to
 
 ## 1. Project Setup
 - [ ] **Initialize Repository & Environment**
-  - [ ] Initialize a Git repository.
-  - [ ] Set up a virtual environment.
-- [ ] **Project Structure**
-  - [ ] Create a `yt-scribe/` folder containing:
-    - [ ] `__init__.py`
-    - [ ] `cli.py` – CLI commands will be implemented here.
-    - [ ] `core.py` – Transcript processing, LLM summarization, and embedding logic.
-    - [ ] `db.py` – Database schema and CRUD operations.
-  - [ ] Create a `tests/` folder with:
-    - [ ] `__init__.py`
-    - [ ] Placeholder test files for each module (e.g., `test_transcript.py`, `test_chunking.py`, etc.)
-- [ ] **Documentation & Dependencies**
-  - [ ] Create a `README.md` with project description and setup instructions.
-  - [ ] Dependencies to `pyproject.toml`:
+  - [x] Initialize a Git repository.
+  - [x] Set up a virtual environment.
+- [x] **Project Structure**
+  - [x] Create a `yt-scribe/` folder containing:
+    - [x] `__init__.py`
+    - [x] `cli.py` – CLI commands will be implemented here.
+    - [x] `core.py` – Transcript processing, LLM summarization, and embedding logic.
+    - [x] `db.py` – Database schema and CRUD operations.
+  - [x] Create a `tests/` folder with:
+    - [x] `__init__.py`
+    - [x] Placeholder test files for each module (e.g., `test_transcript.py`, `test_chunking.py`, etc.)
+- [x] **Documentation & Dependencies**
+  - [x] Create a `README.md` with project description and setup instructions.
+  - [x] Dependencies to `pyproject.toml`:
     - yt-dlp
     - typer
     - openai and/or anthropic
