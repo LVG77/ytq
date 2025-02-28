@@ -130,6 +130,7 @@ Results for "AI ethics":
 
 ### **6. Dependencies**  
 - Libraries:  
+  - `typer` (CLI)
   - `yt-dlp` (transcript/metadata).  
   - `openai`/`anthropic` (LLM + embeddings).  
   - `sqlite3` (database), `numpy` (cosine similarity).  
