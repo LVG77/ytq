@@ -1,0 +1,30 @@
+[project]
+name = "yt-scribe"
+version = "0.1"
+description = "Build knowledge base from YouTube video transcripts"
+readme = "README.md"
+authors = [{name = "Lyubomir Georgiev"}]
+license = {text = "Apache-2.0"}
+requires-python = ">=3.8"
+classifiers = [
+    "License :: OSI Approved :: Apache Software License"
+]
+dependencies = [
+    "typer"
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project.urls]
+Homepage = "https://github.com/lvg77/yt-scribe"
+Changelog = "https://github.com/lvg77/yt-scribe/releases"
+Issues = "https://github.com/lvg77/yt-scribe/issues"
+CI = "https://github.com/lvg77/yt-scribe/actions"
+
+[project.scripts]
+yt-scribe = "yt_scribe.cli:app"
+
+[project.optional-dependencies]
+test = ["pytest"]
