@@ -28,32 +28,32 @@ pip install yt-scribe
 
 ### Add a video to the knowledge base:
 ```bash
-yt-scribe add "https://youtube.com/watch?v=VIDEO_ID"
+yts add "https://youtube.com/watch?v=VIDEO_ID"
 ```
 
 ### Search the knowledge base:
 ```bash
-yt-scribe query "search term"
+yts query "search term"
 ```
 
 ### Enable semantic search:
 ```bash
-yt-scribe query "search term" --semantic
+yts query "search term" --semantic
 ```
 
 ### Reprocess a video:
 ```bash
-yt-scribe reprocess "https://youtube.com/watch?v=VIDEO_ID"
+yts reprocess "https://youtube.com/watch?v=VIDEO_ID"
 ```
 
 ### Display a video summary:
 ```bash
-yt-scribe summary VIDEO_ID
+yts summary VIDEO_ID
 ```
 
 For help, run:
 ```bash
-yt-scribe --help
+yts --help
 ```
 
 You can also use:
