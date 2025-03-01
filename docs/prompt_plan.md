@@ -113,7 +113,7 @@ Focus on clean error handling and modularity, so that later steps (chunking, met
 
 ```text
 Expand the core.py module to include functions for:
-1. Splitting the raw transcript into manageable chunks (e.g., by sentence or paragraph) while preserving the associated timestamps.
+1. Splitting or combining the raw transcript into manageable chunks (e.g., by sentence or paragraph) while preserving the associated timestamps.
 2. Extracting metadata from the video using yt-dlp (including title, author, URL, duration, and video id).
 
 Write unit tests (in tests/test_chunking.py) to ensure:

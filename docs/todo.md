@@ -29,26 +29,26 @@ This checklist outlines every step needed to build and test the yt-scribe CLI to
 ---
 
 ## 2. Transcript Downloader Module
-- [ ] **Implementation in `core.py`**
-  - [ ] Write a function that uses `yt-dlp` to fetch the YouTube transcript.
-  - [ ] Support English transcripts (auto-generated or human).
-  - [ ] Return the raw transcript text along with timestamps.
-  - [ ] Implement error handling for cases where no transcript is found.
-- [ ] **Testing**
-  - [ ] Create tests in `tests/test_transcript.py` to:
+- [x] **Implementation in `core.py`**
+  - [x] Write a function that uses `yt-dlp` to fetch the YouTube transcript.
+  - [x] Support English transcripts (auto-generated or human).
+  - [x] Return the raw transcript text along with timestamps.
+  - [x] Implement error handling for cases where no transcript is found.
+- [x] **Testing**
+  - [x] Create tests in `tests/test_transcript.py` to:
     - Verify correct transcript retrieval for valid URLs.
     - Confirm that a clear error is raised for videos without transcripts.
 
 ---
 
 ## 3. Transcript Chunking & Metadata Extraction
-- [ ] **Transcript Chunking**
-  - [ ] Develop a function to split the transcript into manageable chunks (e.g., by sentence or paragraph).
-  - [ ] Ensure that each chunk retains its associated timestamp.
-- [ ] **Metadata Extraction**
-  - [ ] Use `yt-dlp` to extract video metadata: title, author, URL, duration, and video id.
-- [ ] **Testing**
-  - [ ] Write tests in `tests/test_chunking.py` to:
+- [x] **Transcript Chunking**
+  - [x] Develop a function to split the transcript into manageable chunks (e.g., by sentence or paragraph).
+  - [x] Ensure that each chunk retains its associated timestamp.
+- [x] **Metadata Extraction**
+  - [x] Use `yt-dlp` to extract video metadata: title, author, URL, duration, and video id.
+- [x] **Testing**
+  - [x] Write tests in `tests/test_chunking.py` to:
     - Verify that chunks are correctly created with timestamps.
     - Confirm that metadata is accurately extracted and formatted.
 
