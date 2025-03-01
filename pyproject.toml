@@ -21,6 +21,11 @@ dependencies = [
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
+[dependency-groups]
+dev = [
+    "ipython>=8.12.3",
+]
+
 [project.urls]
 Homepage = "https://github.com/lvg77/yt-scribe"
 Changelog = "https://github.com/lvg77/yt-scribe/releases"
