@@ -371,27 +371,80 @@ def chunk_by_sentences(transcript_data: dict, max_sentences: int = 5, overlap_se
     
     return chunks
 
-def summarize_transcript(chunks: list, metadata: dict) -> dict:
+
+def _validate_summary_structure(summary: dict) -> None:
     """
-    Generate a summary of the transcript using an LLM.
+    Validate that the summary has the expected structure.
     
     Args:
-        chunks: List of transcript chunks
+        summary: The summary to validate
+        
+    Raises:
+        ValueError: If the summary structure is invalid
+    """
+    required_keys = ["title", "tldr", "detailed_summary", "tags"]
+    for key in required_keys:
+        if key not in summary:
+            raise ValueError(f"Summary missing required key: {key}")
+    
+    if not isinstance(summary["detailed_summary"], list):
+        raise ValueError("detailed_summary must be a list")
+    
+    if not summary["detailed_summary"]:
+        raise ValueError("detailed_summary cannot be empty")
+    
+    for bullet in summary["detailed_summary"]:
+        if not isinstance(bullet, dict):
+            raise ValueError("Each detailed_summary item must be a dictionary")
+        if "bullet" not in bullet:
+            raise ValueError("Each detailed_summary item must have a 'bullet' key")
+    
+    if not isinstance(summary["tags"], list):
+        raise ValueError("tags must be a list")
+
+def _enhance_with_timestamps(summary: dict, timestamp_map: dict, metadata: dict) -> dict:
+    """
+    Enhance summary with timestamps if they're missing.
+    
+    Args:
+        summary: The summary to enhance
+        timestamp_map: Mapping of phrases to timestamps
         metadata: Video metadata
         
     Returns:
-        Structured JSON summary
+        Enhanced summary
     """
-    # TODO: Implement LLM summarization
-    return {
-        "title": metadata["title"],
-        "tldr": "Sample TLDR summary",
-        "detailed_summary": [
-            {"bullet": "Sample point 1", "timestamp": 0},
-            {"bullet": "Sample point 2", "timestamp": 10}
-        ],
-        "tags": ["sample", "tags"]
-    }
+    if not timestamp_map:
+        return summary
+        
+    # Ensure each bullet has a timestamp
+    for i, bullet in enumerate(summary["detailed_summary"]):
+        if "timestamp" not in bullet or not bullet["timestamp"]:
+            # Try to find a matching phrase in the timestamp map
+            bullet_text = bullet["bullet"].lower()
+            
+            # Look for 3-word phrases from the bullet in the timestamp map
+            words = bullet_text.split()
+            timestamp_found = False
+            
+            for j in range(len(words) - 2):
+                phrase = " ".join(words[j:j+3])
+                if phrase in timestamp_map:
+                    bullet["timestamp"] = timestamp_map[phrase]
+                    timestamp_found = True
+                    break
+            
+            # If no timestamp found, distribute evenly across video duration
+            if not timestamp_found:
+                duration = metadata.get("duration", 0) if metadata else 0
+                if duration > 0 and len(summary["detailed_summary"]) > 1:
+                    # Distribute timestamps evenly
+                    bullet["timestamp"] = int((i / (len(summary["detailed_summary"]) - 1)) * duration)
+                else:
+                    # Default to 0 if we can't determine a good timestamp
+                    bullet["timestamp"] = 0
+    
+    return summary
 
 def generate_embeddings(summary_bullets: list) -> dict:
     """

@@ -21,7 +21,7 @@ def test_chunk_transcript():
 
 def test_summarize_transcript():
     """Test transcript summarization function."""
-    # TODO: Implement test with mock LLM responses
+    # This is now tested in test_llm_summarizer.py
     pass
 
 def test_generate_embeddings():

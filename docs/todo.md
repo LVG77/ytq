@@ -55,19 +55,18 @@ This checklist outlines every step needed to build and test the yt-scribe CLI to
 ---
 
 ## 4. LLM Summarizer Integration
-- [ ] **LLM Summarization Function**
-  - [ ] Implement a function in `core.py` that:
+- [x] **LLM Summarization Function**
+  - [x] Implement a function in `llm.py` that:
     - Accepts transcript chunks and video metadata.
     - Uses a configurable LLM (e.g., OpenAI or Anthropic) to generate a summary.
     - Adheres to a strict JSON template with:
-      - Title
       - A 2-3 sentence TLDR
-      - Detailed summary bullets (with timestamps)
+      - Detailed summary
       - Tags
-  - [ ] Validate that the output conforms to the template.
-- [ ] **Testing**
-  - [ ] Write unit tests in `tests/test_llm_summarizer.py` using mocks to simulate the LLM API.
-  - [ ] Test for correct JSON structure and error handling (e.g., API timeouts).
+  - [x] Validate that the output conforms to the template.
+- [x] **Testing**
+  - [x] Write unit tests in `tests/test_llm_summarizer.py` using mocks to simulate the LLM API.
+  - [x] Test for correct JSON structure and error handling (e.g., API timeouts).
 
 ---
 
