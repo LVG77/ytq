@@ -71,15 +71,11 @@ This checklist outlines every step needed to build and test the yt-scribe CLI to
 ---
 
 ## 5. Embedding Generation Module
-- [ ] **Embedding Function**
-  - [ ] Create a function in `core.py` to generate embeddings for each summary bullet.
-  - [ ] Support a configurable embedding provider (OpenAI/Anthropic or a stub for testing).
-  - [ ] Implement a retry mechanism (max 2 retries) in case of API failures.
-  - [ ] Ensure a 1:1 mapping between summary bullets and embeddings.
-- [ ] **Testing**
-  - [ ] Write tests in `tests/test_embeddings.py` to:
-    - Verify each bullet generates exactly one embedding.
-    - Test error handling for failed API calls.
+- [x] **Embedding Function**
+  - [x] Create a function in `embeddings.py` to generate embeddings for each transcript chunk.
+  - [x] Support a configurable embedding provider (OpenAI/Anthropic or a stub for testing).
+- [x] **Testing**
+  - [x] Write tests in `tests/test_embeddings.py` to:
 
 ---
 

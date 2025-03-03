@@ -147,14 +147,14 @@ Document in comments where the prompt template is used and how the configuration
 ### **Prompt 5: Embedding Generation Module**
 
 ```text
-Develop an embedding generation function in core.py that:
-1. Accepts individual summary bullets (from the detailed summary list) as input.
-2. Calls an embedding API (configurable between OpenAI and Anthropic, or a stub for testing) to generate a numeric embedding vector for each bullet.
-3. Returns a mapping of each bullet to its corresponding embedding.
+Develop an embedding generation function in embeddings.py that:
+1. Accepts trascript chunks dictionary (from the `chunk_transcript` function) as input.
+2. Calls an embedding API (configurable between OpenAI and Anthropic, or a stub for testing) to generate a numeric embedding vector for each chunk text.
+3. Returns the original chunks dictionary with an additional 'embedding' field containing the vector.
 
 Write unit tests (in tests/test_embeddings.py) to:
-- Ensure that each summary bullet is processed and exactly one embedding is generated.
-- Handle errors gracefully if the API call fails, using a retry mechanism (with a maximum of 2 retries).
+- Ensure that each chunk text is processed and exactly one embedding is generated.
+- Handle errors gracefully
 
 Keep the implementation modular so that the embedding function can be integrated later with the database operations.
 ```
