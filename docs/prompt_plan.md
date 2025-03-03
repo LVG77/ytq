@@ -44,8 +44,8 @@ The goal is to build a CLI tool named **yt-scribe** that processes a single YouT
 
 6. **Database Schema & CRUD Operations:**  
    - Design an SQLite schema with two tables:  
-     - `videos` (with fields: video_id, url, title, author, duration, summary_json, tags, processed_at)  
-     - `video_details` (with fields: chunk_id, video_id, chunk_text, embedding, timestamp)  
+     - `videos` (with fields: video_id (PK), url, title, author, duration, view_count, upload_date, video_description, summary, tldr, tags, full_transcript, processed_at). Columns video_id to video_description are part of the metadata while summary, tldr, tags, and full_transcript are the summary data. Create also virtual fts5 table with columns video_id,tile, summary, tldr, tags, full_transcript for full text search.
+     - `video_details` (with fields: chunk_id (PK), video_id (FK), chunk_text, embedding, timestamp, end_timestamp, entries). All columns are part of the chunks data with attached embeddings. Use `encode` and `decode` functions to pack embeddings as binary data. Create virtual fts5 table with columns chunk_id, chunk_text for full text search.
    - Implement functions for inserting, updating (overwriting on reprocess), and retrieving data.  
    - Develop tests for each database operation.
 

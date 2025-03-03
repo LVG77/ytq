@@ -80,19 +80,19 @@ This checklist outlines every step needed to build and test the yt-scribe CLI to
 ---
 
 ## 6. SQLite Database Schema & CRUD Operations
-- [ ] **Database Schema Design**
-  - [ ] Create an SQLite schema with:
+- [x] **Database Schema Design**
+  - [x] Create an SQLite schema with:
     - A `videos` table:
-      - Fields: video_id (PK), url, title, author, duration, summary_json, tags, processed_at.
+      - Fields: video_id (PK), url, title, author, duration, view_count, upload_date, video_description, summary_json, tags, processed_at.
     - A `video_details` table:
-      - Fields: chunk_id (PK), video_id (FK), chunk_text, embedding, timestamp.
-- [ ] **Database Functions**
-  - [ ] Implement functions in `db.py` to:
+      - Fields: chunk_id (PK), video_id (FK), chunk_text, embedding, timestamp, end_timestamp, entries.
+- [x] **Database Functions**
+  - [x] Implement functions in `db.py` to:
     - Insert new video records and corresponding transcript chunks.
     - Update (overwrite) existing video records during reprocessing.
     - Retrieve video and chunk data for queries.
-- [ ] **Testing**
-  - [ ] Write tests in `tests/test_db.py` to:
+- [x] **Testing**
+  - [x] Write tests in `tests/test_db.py` to:
     - Verify correct insertion and retrieval of data.
     - Ensure that reprocessing correctly overwrites previous data.
     - Test error handling and connection management.

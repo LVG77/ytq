@@ -5,7 +5,7 @@ import pytest
 import sqlite3
 import pathlib
 import tempfile
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from yt_scribe import db
 
 @pytest.fixture
@@ -16,6 +16,56 @@ def temp_db():
         with patch('yt_scribe.db.get_db_path', return_value=temp_path):
             db.init_db()
             yield temp_path
+
+@pytest.fixture
+def sample_video_data():
+    """Sample video data for testing."""
+    return {
+        'metadata': {
+            'video_id': 'test123',
+            'url': 'https://youtube.com/watch?v=test123',
+            'title': 'Test Video',
+            'author': 'Test Channel',
+            'duration': 600,
+            'view_count': 1000,
+            'upload_date': '20240101',
+            'description': 'This is a test video'
+        },
+        'transcript': 'This is a test transcript for the video.'
+    }
+
+@pytest.fixture
+def sample_summary():
+    """Sample summary data for testing."""
+    return {
+        'summary': 'This is a summary of the test video.',
+        'tldr': 'A test video about testing.',
+        'tags': ['test', 'video', 'python']
+    }
+
+@pytest.fixture
+def sample_chunks():
+    """Sample chunks data for testing."""
+    return [
+        {
+            'text': 'This is chunk one of the test video.',
+            'timestamp': 0.0,
+            'end_timestamp': 10.0,
+            'embedding': [0.1, 0.2, 0.3, 0.4, 0.5],
+            'entries': [
+                {'start': 0.0, 'text': 'This is chunk one of the test video.'}
+            ]
+        },
+        {
+            'text': 'This is chunk two of the test video.',
+            'timestamp': 10.0,
+            'end_timestamp': 20.0,
+            'embedding': [0.2, 0.3, 0.4, 0.5, 0.6],
+            'entries': [
+                {'start': 10.0, 'text': 'This is chunk two of the test video.'}
+            ]
+        }
+    ]
 
 def test_init_db(temp_db):
     """Test database initialization."""
@@ -31,19 +81,170 @@ def test_init_db(temp_db):
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='video_details'")
     assert cursor.fetchone() is not None
     
+    # Check FTS5 tables
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='videos_fts'")
+    assert cursor.fetchone() is not None
+    
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='video_details_fts'")
+    assert cursor.fetchone() is not None
+    
+    # Check triggers
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='trigger' AND name='videos_ai'")
+    assert cursor.fetchone() is not None
+    
     conn.close()
 
-def test_store_video():
-    """Test storing video data in the database."""
-    # TODO: Implement test with mock data
-    pass
+def test_encode_decode():
+    """Test encoding and decoding of embeddings."""
+    original = [0.1, 0.2, 0.3, 0.4, 0.5]
+    encoded = db.encode(original)
+    decoded = db.decode(encoded)
+    
+    # Check that the values are approximately equal (floating point precision issues)
+    assert len(original) == len(decoded)
+    for o, d in zip(original, decoded):
+        assert abs(o - d) < 1e-6
 
-def test_query_videos():
-    """Test querying videos from the database."""
-    # TODO: Implement test with sample data
-    pass
+def test_store_and_get_video(temp_db, sample_video_data, sample_summary, sample_chunks):
+    """Test storing and retrieving a video."""
+    # Store the video
+    db.store_video(sample_video_data, sample_summary, sample_chunks)
+    
+    # Retrieve the video
+    video = db.get_video('test123')
+    
+    # Check video metadata
+    assert video is not None
+    assert video['video_id'] == 'test123'
+    assert video['title'] == 'Test Video'
+    assert video['author'] == 'Test Channel'
+    assert video['summary'] == 'This is a summary of the test video.'
+    assert video['tldr'] == 'A test video about testing.'
+    assert video['tags'] == ['test', 'video', 'python']
+    
+    # Check chunks
+    assert 'chunks' in video
+    assert len(video['chunks']) == 2
+    assert video['chunks'][0]['chunk_text'] == 'This is chunk one of the test video.'
+    assert video['chunks'][1]['chunk_text'] == 'This is chunk two of the test video.'
 
-def test_get_video_summary():
-    """Test retrieving a video summary from the database."""
-    # TODO: Implement test with sample data
-    pass
+def test_update_video(temp_db, sample_video_data, sample_summary, sample_chunks):
+    """Test updating an existing video."""
+    # Store the video
+    db.store_video(sample_video_data, sample_summary, sample_chunks)
+    
+    # Update video data
+    updated_data = sample_video_data.copy()
+    updated_data['metadata']['title'] = 'Updated Test Video'
+    
+    updated_summary = sample_summary.copy()
+    updated_summary['summary'] = 'This is an updated summary with keyword improvement'
+    updated_sample_chunks = sample_chunks.copy()
+    updated_sample_chunks[0]['text'] = 'Updated chunk one, with keyword improvement'
+    
+    # Store the updated video
+    db.store_video(updated_data, updated_summary, sample_chunks)
+    
+    # Retrieve the video
+    video = db.get_video('test123')
+    
+    # Check updated fields
+    assert video['title'] == 'Updated Test Video'
+    assert video['summary'] == 'This is an updated summary with keyword improvement'
+
+    # Search for videos
+    results = db.search_videos('improvement')
+    assert len(results) >= 1
+    assert results[0]['video_id'] == 'test123'
+    results = db.search_chunks('improvement')
+    assert len(results) >= 1
+    assert results[0]['video_id'] == 'test123'
+
+def test_get_video_chunks(temp_db, sample_video_data, sample_summary, sample_chunks):
+    """Test retrieving chunks for a video."""
+    # Store the video
+    db.store_video(sample_video_data, sample_summary, sample_chunks)
+    
+    # Retrieve chunks without embeddings
+    chunks = db.get_video_chunks('test123')
+    assert len(chunks) == 2
+    assert 'embedding' not in chunks[0]
+    
+    # Retrieve chunks with embeddings
+    chunks_with_embeddings = db.get_video_chunks('test123', with_embeddings=True)
+    assert len(chunks_with_embeddings) == 2
+    assert 'embedding' in chunks_with_embeddings[0]
+    assert isinstance(chunks_with_embeddings[0]['embedding'], list)
+    assert len(chunks_with_embeddings[0]['embedding']) == 5
+
+def test_search_videos(temp_db, sample_video_data, sample_summary, sample_chunks):
+    """Test searching for videos."""
+    # Store the video
+    db.store_video(sample_video_data, sample_summary, sample_chunks)
+    
+    # Search for videos
+    results = db.search_videos('test')
+    assert len(results) >= 1
+    assert results[0]['video_id'] == 'test123'
+    
+    # Search for non-existent content
+    results = db.search_videos('nonexistent')
+    assert len(results) == 0
+
+def test_search_chunks(temp_db, sample_video_data, sample_summary, sample_chunks):
+    """Test searching for chunks."""
+    # Store the video
+    db.store_video(sample_video_data, sample_summary, sample_chunks)
+    
+    # Search for chunks
+    results = db.search_chunks('chunk one')
+    assert len(results) >= 1
+    assert 'chunk one' in results[0]['chunk_text']
+    
+    # Search for non-existent content
+    results = db.search_chunks('nonexistent')
+    assert len(results) == 0
+
+def test_get_all_videos(temp_db, sample_video_data, sample_summary, sample_chunks):
+    """Test retrieving all videos."""
+    # Store the video
+    db.store_video(sample_video_data, sample_summary, sample_chunks)
+    
+    # Create a second video
+    second_video = sample_video_data.copy()
+    second_video['metadata']['video_id'] = 'test456'
+    second_video['metadata']['title'] = 'Second Test Video'
+    db.store_video(second_video, sample_summary, sample_chunks)
+    
+    # Retrieve all videos
+    videos = db.get_all_videos()
+    assert len(videos) == 2
+    
+    # Test pagination
+    limited_videos = db.get_all_videos(limit=1)
+    assert len(limited_videos) == 1
+    
+    offset_videos = db.get_all_videos(offset=1, limit=1)
+    assert len(offset_videos) == 1
+    assert offset_videos[0]['video_id'] != limited_videos[0]['video_id']
+
+def test_delete_video(temp_db, sample_video_data, sample_summary, sample_chunks):
+    """Test deleting a video."""
+    # Store the video
+    db.store_video(sample_video_data, sample_summary, sample_chunks)
+    
+    # Delete the video
+    result = db.delete_video('test123')
+    assert result is True
+    
+    # Verify the video is deleted
+    video = db.get_video('test123')
+    assert video is None
+    
+    # Verify no chunks remain
+    chunks = db.get_video_chunks('test123')
+    assert len(chunks) == 0
+    
+    # Test deleting non-existent video
+    result = db.delete_video('nonexistent')
+    assert result is False
