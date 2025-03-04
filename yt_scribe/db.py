@@ -14,6 +14,7 @@ def encode(values):
 def decode(binary):
     return struct.unpack("<" + "f" * (len(binary) // 4), binary)
 
+
 def get_db_path() -> pathlib.Path:
     """
     Get the path to the SQLite database file.
@@ -470,62 +471,94 @@ def delete_video(video_id: str) -> bool:
     finally:
         conn.close()
 
-# def find_similar_chunks(embedding: list[float], limit: int = 5) -> list[dict[str, any]]:
-#     """
-#     Find chunks with similar embeddings using cosine similarity.
+def find_similar_chunks(embedding: list[float], limit: int = 5, video_ids: list[str] = None) -> list[dict[str, any]]:
+    """
+    Find chunks with similar embeddings using cosine similarity.
     
-#     Args:
-#         embedding: Query embedding vector
-#         limit: Maximum number of results to return
+    Args:
+        embedding: Query embedding vector as a list of floats
+        limit: Maximum number of results to return
+        video_ids: Optional list of video IDs to restrict search to specific videos
         
-#     Returns:
-#         List of chunks with similarity scores
-#     """
-#     # This requires the embeddings to be stored as BLOB
-#     # The cosine similarity is approximated using dot product on normalized vectors
-#     query_embedding = encode(embedding)
+    Returns:
+        List of chunks with similarity scores, sorted by relevance
+    """
+    import numpy as np
     
-#     conn = sqlite3.connect(get_db_path())
-#     conn.row_factory = dict_factory
+    def fast_dot_product(query: np.ndarray, matrix: np.ndarray, k=3) -> tuple[np.ndarray, np.ndarray]:
+        dot_products = query @ matrix.T
+        idx = np.argpartition(dot_products, -k)[-k:]
+        idx = idx[np.argsort(dot_products[idx])[::-1]]
+        score = dot_products[idx]
+        return idx, score
+
+    conn = sqlite3.connect(get_db_path())
+    conn.row_factory = dict_factory
     
-#     try:
-#         cursor = conn.cursor()
+    try:
+        cursor = conn.cursor()
         
-#         # Get all chunks with embeddings
-#         cursor.execute('''
-#         SELECT vd.chunk_id, vd.video_id, vd.chunk_text, vd.embedding, vd.timestamp, vd.end_timestamp,
-#                v.title, v.author
-#         FROM video_details vd
-#         JOIN videos v ON vd.video_id = v.video_id
-#         WHERE vd.embedding IS NOT NULL
-#         ''')
+        # Convert query embedding to numpy array
+        query_embedding = np.array(embedding, dtype=np.float32)
         
-#         chunks = cursor.fetchall()
-#         results = []
+        # Get chunks with embeddings, optionally filtered by video_ids
+        if video_ids and len(video_ids) > 0:
+            # Create placeholders for SQL IN clause
+            placeholders = ', '.join(['?'] * len(video_ids))
+            cursor.execute(f'''
+            SELECT vd.chunk_id, vd.video_id, vd.chunk_text, vd.embedding, vd.timestamp, vd.end_timestamp,
+                   v.title, v.author, v.url
+            FROM video_details vd
+            JOIN videos v ON vd.video_id = v.video_id
+            WHERE vd.embedding IS NOT NULL AND vd.video_id IN ({placeholders})
+            ''', video_ids)
+        else:
+            cursor.execute('''
+            SELECT vd.chunk_id, vd.video_id, vd.chunk_text, vd.embedding, vd.timestamp, vd.end_timestamp,
+                   v.title, v.author, v.url
+            FROM video_details vd
+            JOIN videos v ON vd.video_id = v.video_id
+            WHERE vd.embedding IS NOT NULL
+            ''')
         
-#         # Calculate similarity for each chunk
-#         for chunk in chunks:
-#             chunk_embedding = chunk['embedding']
-#             if chunk_embedding:
-#                 # Decode the embedding
-#                 chunk_vector = decode(chunk_embedding)
-                
-#                 # Calculate cosine similarity using dot product (assumes normalized vectors)
-#                 similarity = sum(a * b for a, b in zip(embedding, chunk_vector))
-                
-#                 results.append({
-#                     'chunk_id': chunk['chunk_id'],
-#                     'video_id': chunk['video_id'],
-#                     'title': chunk['title'],
-#                     'author': chunk['author'],
-#                     'chunk_text': chunk['chunk_text'],
-#                     'timestamp': chunk['timestamp'],
-#                     'end_timestamp': chunk['end_timestamp'],
-#                     'similarity': similarity
-#                 })
+        chunks = cursor.fetchall()
         
-#         # Sort by similarity (highest first) and limit results
-#         results.sort(key=lambda x: x['similarity'], reverse=True)
-#         return results[:limit]
-#     finally:
-#         conn.close()
+        # Early return if no chunks with embeddings are found
+        if not chunks:
+            return []
+            
+        # Extract embeddings and build a matrix
+        chunk_ids = []
+        metadata = []
+        embeddings_matrix = np.zeros((len(chunks), len(embedding)), dtype=np.float32)
+        
+        for i, chunk in enumerate(chunks):
+            if chunk['embedding']:
+                # Decode the embedding from binary to float list
+                chunk_vector = decode(chunk['embedding'])
+                embeddings_matrix[i] = chunk_vector
+                chunk_ids.append(chunk['chunk_id'])
+                metadata.append({
+                    'chunk_id': chunk['chunk_id'],
+                    'video_id': chunk['video_id'],
+                    'title': chunk['title'],
+                    'author': chunk['author'],
+                    'chunk_text': chunk['chunk_text'],
+                    'timestamp': chunk['timestamp'],
+                    'end_timestamp': chunk['end_timestamp'],
+                    'url': chunk.get('url', '')
+                })
+        
+        # Use fast_dot_product for efficient similarity calculation
+        indices, scores = fast_dot_product(query_embedding, embeddings_matrix, k=min(limit, len(chunks)))
+        
+        # Create results with similarity scores
+        results = []
+        for idx, score in zip(indices, scores):
+            result = metadata[idx].copy()
+            result['similarity'] = float(score)  # Convert numpy float to Python float
+            results.append(result)
+        
+        return results
+    finally:
+        conn.close()

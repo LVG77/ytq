@@ -49,11 +49,11 @@ The goal is to build a CLI tool named **yt-scribe** that processes a single YouT
    - Implement functions for inserting, updating (overwriting on reprocess), and retrieving data.  
    - Develop tests for each database operation.
 
-7. **Query Engine Implementation:**  
-   - Implement hybrid search:  
-     - Keyword search across `tags` and `chunk_text`.  
-     - Semantic search via cosine similarity on the embeddings.  
-   - Combine scores to rank results and add tests to verify search accuracy.
+7. **Query Engine Implementation:**
+   - Implement semantic search based on cosine similarity on embeddings.
+     - Get all chunks with embeddings, convert embeddings to numpy arrays, and calculate cosine similarity using `fast_dot_product` function.
+     - Output chunks sorted by score.
+   - Develop unit test to verify semantic search.
 
 8. **CLI Integration with Typer:**  
    - Wire all backend components into CLI commands:  

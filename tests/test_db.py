@@ -248,3 +248,93 @@ def test_delete_video(temp_db, sample_video_data, sample_summary, sample_chunks)
     # Test deleting non-existent video
     result = db.delete_video('nonexistent')
     assert result is False
+
+def test_find_similar_chunks(temp_db, sample_video_data, sample_summary, sample_chunks):
+    """Test finding chunks with similar embeddings."""
+    # Store the video with sample chunks that have embeddings
+    db.store_video(sample_video_data, sample_summary, sample_chunks)
+    
+    # Create a second video with different embeddings
+    second_video = sample_video_data.copy()
+    second_video['metadata']['video_id'] = 'test456'
+    second_video['metadata']['title'] = 'Second Test Video'
+    
+    second_chunks = [
+        {
+            'text': 'This is a completely different topic.',
+            'timestamp': 0.0,
+            'end_timestamp': 10.0,
+            'embedding': [0.9, 0.8, 0.7, 0.6, 0.5],  # Very different embedding
+            'entries': [{'start': 0.0, 'text': 'This is a completely different topic.'}]
+        },
+        {
+            'text': 'This is slightly similar to the first video.',
+            'timestamp': 10.0,
+            'end_timestamp': 20.0,
+            'embedding': [0.25, 0.35, 0.45, 0.55, 0.65],  # Somewhat similar to first video
+            'entries': [{'start': 10.0, 'text': 'This is slightly similar to the first video.'}]
+        }
+    ]
+    
+    db.store_video(second_video, sample_summary, second_chunks)
+    
+    # Create a third video
+    third_video = sample_video_data.copy()
+    third_video['metadata']['video_id'] = 'test789'
+    third_video['metadata']['title'] = 'Third Test Video'
+    
+    third_chunks = [
+        {
+            'text': 'This is from the third video.',
+            'timestamp': 0.0,
+            'end_timestamp': 10.0,
+            'embedding': [0.1, 0.3, 0.5, 0.7, 0.9],  # Different embedding
+            'entries': [{'start': 0.0, 'text': 'This is from the third video.'}]
+        }
+    ]
+    
+    db.store_video(third_video, sample_summary, third_chunks)
+    
+    # Query embedding similar to first video's first chunk
+    query_embedding = [0.15, 0.25, 0.35, 0.45, 0.55]  # Closer to first video's embeddings
+    
+    # Test general search (all videos)
+    results = db.find_similar_chunks(query_embedding, limit=5)
+    
+    # We should get at least 3 results (one from each video)
+    assert len(results) >= 3
+    
+    # Test that results are sorted by similarity (highest first)
+    for i in range(len(results) - 1):
+        assert results[i]['similarity'] >= results[i + 1]['similarity']
+    
+    # Test search restricted to specific videos (first and third)
+    specific_results = db.find_similar_chunks(
+        query_embedding, 
+        limit=5, 
+        video_ids=['test123', 'test789']
+    )
+    
+    # All results should be from the specified videos
+    for result in specific_results:
+        assert result['video_id'] in ['test123', 'test789']
+        assert result['video_id'] != 'test456'  # Should not include second video
+    
+    # Test with a single video ID in the list
+    single_video_results = db.find_similar_chunks(
+        query_embedding,
+        limit=5,
+        video_ids=['test456']
+    )
+    
+    # All results should be from the second video
+    for result in single_video_results:
+        assert result['video_id'] == 'test456'
+    
+    # Test with empty video IDs list (should return results from all videos)
+    empty_list_results = db.find_similar_chunks(query_embedding, video_ids=[])
+    assert len(empty_list_results) >= 3  # Should get results from all videos
+    
+    # Test with non-existent video IDs
+    nonexistent_results = db.find_similar_chunks(query_embedding, video_ids=['nonexistent'])
+    assert len(nonexistent_results) == 0
