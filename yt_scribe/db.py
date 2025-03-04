@@ -562,3 +562,54 @@ def find_similar_chunks(embedding: list[float], limit: int = 5, video_ids: list[
         return results
     finally:
         conn.close()
+
+def hybrid_search_chunks(query: str, embedding: list[float], limit: int = 10, video_ids: list[str] = None, k: int = 60) -> list[dict[str, any]]:
+    """
+    Perform a hybrid search using Reciprocal Rank Fusion (RRF) that combines
+    full-text search (FTS) results with semantic vector search results.
+    
+    Args:
+        query: Full-text search query.
+        embedding: Query embedding vector.
+        limit: Maximum number of results to return.
+        video_ids: Optional list of video IDs to restrict semantic search.
+        k: RRF constant to dampen the reciprocal rank (default: 60).
+    
+    Returns:
+        List of result dictionaries with a combined "rrf_score", sorted by relevance.
+    """
+    # Retrieve results from full-text search (FTS)
+    fts_results = search_chunks(query, limit=limit * 2)
+    # Retrieve results from semantic vector search
+    semantic_results = find_similar_chunks(embedding, limit=limit * 2, video_ids=video_ids)
+    
+    # Use Reciprocal Rank Fusion to combine scores.
+    combined = {}
+    
+    # Process FTS results; rank starts at 1 for highest result.
+    for rank, result in enumerate(fts_results, start=1):
+        chunk_id = result["chunk_id"]
+        score = 1.0 / (k + rank)
+        if chunk_id in combined:
+            combined[chunk_id]["rrf_score"] += score
+        else:
+            temp = result.copy()
+            temp["rrf_score"] = score
+            combined[chunk_id] = temp
+    
+    # Process semantic results.
+    for rank, result in enumerate(semantic_results, start=1):
+        chunk_id = result["chunk_id"]
+        score = 1.0 / (k + rank)
+        if chunk_id in combined:
+            combined[chunk_id]["rrf_score"] += score
+        else:
+            temp = result.copy()
+            temp["rrf_score"] = score
+            combined[chunk_id] = temp
+    
+    # Sort the merged results by their combined RRF score in descending order.
+    merged_results = list(combined.values())
+    merged_results.sort(key=lambda x: x["rrf_score"], reverse=True)
+    
+    return merged_results[:limit]

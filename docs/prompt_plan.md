@@ -53,6 +53,7 @@ The goal is to build a CLI tool named **yt-scribe** that processes a single YouT
    - Implement semantic search based on cosine similarity on embeddings.
      - Get all chunks with embeddings, convert embeddings to numpy arrays, and calculate cosine similarity using `fast_dot_product` function.
      - Output chunks sorted by score.
+   - Implement hybrid search using Reciprocal Rank Fusion (RRF), which ranks results that are both FTS5 and semantic vector matches higher than others
    - Develop unit test to verify semantic search.
 
 8. **CLI Integration with Typer:**  

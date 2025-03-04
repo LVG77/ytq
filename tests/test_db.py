@@ -338,3 +338,26 @@ def test_find_similar_chunks(temp_db, sample_video_data, sample_summary, sample_
     # Test with non-existent video IDs
     nonexistent_results = db.find_similar_chunks(query_embedding, video_ids=['nonexistent'])
     assert len(nonexistent_results) == 0
+
+def test_hybrid_search_chunks(temp_db, sample_video_data, sample_summary, sample_chunks):
+    """Test hybrid search combining FTS and semantic vector search using RRF."""
+    # Store the sample video data (creates FTS and semantic entries)
+    db.store_video(sample_video_data, sample_summary, sample_chunks)
+    
+    # Use a query string that should match via FTS and an embedding similar to one of the stored chunks.
+    query = "test"
+    query_embedding = [0.1, 0.2, 0.3, 0.4, 0.5]
+    
+    results = db.hybrid_search_chunks(query, query_embedding, limit=5)
+    
+    # Ensure that some results are returned
+    assert results, "Hybrid search returned no results"
+    
+    # Verify that results are sorted in descending order by their combined RRF score.
+    for i in range(len(results) - 1):
+        assert results[i]["rrf_score"] >= results[i + 1]["rrf_score"], "Results are not sorted by RRF score"
+    
+    # Verify that key fields are present in results.
+    for result in results:
+        for key in ("chunk_id", "chunk_text", "rrf_score", "video_id"):
+            assert key in result, f"Result missing key: {key}"
