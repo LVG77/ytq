@@ -81,8 +81,7 @@ def init_db() -> None:
         summary,
         tldr,
         tags,
-        full_transcript,
-        content=videos
+        full_transcript
     )
     ''')
     
@@ -113,28 +112,32 @@ def init_db() -> None:
     CREATE VIRTUAL TABLE IF NOT EXISTS video_details_fts USING fts5(
         chunk_id,
         chunk_text,
-        content=video_details
+        content='video_details'
     )
     ''')
     
     # Create triggers to keep video_details_fts in sync with video_details
     cursor.execute('''
     CREATE TRIGGER IF NOT EXISTS video_details_ai AFTER INSERT ON video_details BEGIN
-        INSERT INTO video_details_fts(chunk_id, chunk_text)
+        INSERT INTO video_details_fts(rowid, chunk_text)
         VALUES (new.chunk_id, new.chunk_text);
     END;
     ''')
     
     cursor.execute('''
     CREATE TRIGGER IF NOT EXISTS video_details_ad AFTER DELETE ON video_details BEGIN
-        DELETE FROM video_details_fts WHERE chunk_id = old.chunk_id;
+        -- DELETE FROM video_details_fts WHERE chunk_id = old.chunk_id;
+        INSERT INTO video_details_fts(video_details_fts, rowid, chunk_text)
+        VALUES ('delete', old.chunk_id, old.chunk_text);
     END;
     ''')
     
     cursor.execute('''
     CREATE TRIGGER IF NOT EXISTS video_details_au AFTER UPDATE ON video_details BEGIN
-        DELETE FROM video_details_fts WHERE chunk_id = old.chunk_id;
-        INSERT INTO video_details_fts(chunk_id, chunk_text)
+        -- DELETE FROM video_details_fts WHERE chunk_id = old.chunk_id;
+        INSERT INTO video_details_fts(video_details_fts, rowid, chunk_text)
+        VALUES ('delete', old.chunk_id, old.chunk_text);
+        INSERT INTO video_details_fts(rowid, chunk_text)
         VALUES (new.chunk_id, new.chunk_text);
     END;
     ''')
@@ -216,7 +219,7 @@ def store_video(video_data: dict[str, any], summary: dict[str, any], chunks: lis
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', video_values)
                 # Rebuild FTS table
-                cursor.execute("INSERT INTO videos_fts(videos_fts) VALUES('rebuild')")
+                # cursor.execute("INSERT INTO videos_fts(videos_fts) VALUES('rebuild')")
                 # cursor.execute("INSERT INTO video_details_fts(video_details_fts) VALUES('rebuild')")
             else:
                 # Insert new video

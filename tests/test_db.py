@@ -143,8 +143,8 @@ def test_update_video(temp_db, sample_video_data, sample_summary, sample_chunks)
     updated_sample_chunks[0]['text'] = 'Updated chunk one, with keyword improvement'
     
     # Store the updated video
-    db.store_video(updated_data, updated_summary, sample_chunks)
-    
+    db.store_video(updated_data, updated_summary, updated_sample_chunks)
+
     # Retrieve the video
     video = db.get_video('test123')
     

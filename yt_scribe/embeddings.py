@@ -4,7 +4,7 @@ import json
 import logging
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 class EmbeddingProvider:
@@ -144,3 +144,26 @@ def generate_embeddings(
                 result_chunks.append(chunk_with_error)
     
     return result_chunks
+
+def get_query_embedding(query: str, provider: str | EmbeddingProvider = "openai", **kwargs) -> list[float]:
+    """
+    Get the embedding for a query.
+
+    Args:
+        query: The query string
+        provider: String name of provider ('openai', 'voyage') or an EmbeddingProvider instance
+        **kwargs: Additional arguments to pass to the embedding provider
+        Returns:
+        The embedding for the query
+    """
+    if isinstance(provider, str):
+        embedding_provider = get_embedding_provider(provider, **kwargs)
+    else:
+        embedding_provider = provider
+    
+    try:
+        return embedding_provider.generate([query])[0]
+
+    except Exception as e:
+        logger.error(f"Error generating embedding for query: {str(e)}")
+        raise RuntimeError(f"Error generating embedding for query: {str(e)}")
