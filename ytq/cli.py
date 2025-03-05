@@ -11,7 +11,7 @@ app = typer.Typer(help="Build knowledge base from YouTube video transcripts")
 
 def version_callback(value: bool):
     if value:
-        typer.echo(f"yt-scribe version: {__version__}")
+        typer.echo(f"ytq version: {__version__}")
         raise typer.Exit()
 
 @app.callback()
@@ -21,7 +21,7 @@ def callback(
     ] = False,
 ):
     """
-    yt-scribe: Build knowledge base from YouTube video transcripts
+    ytq: Build knowledge base from YouTube video transcripts
     """
 
 @app.command()
@@ -41,7 +41,7 @@ def add(
         task = progress.add_task("[cyan]Starting processing...", total=5)
 
         # Database initialization step
-        db_path = Path("yt-scribe.db")
+        db_path = Path("ytq.db")
         if not db_path.exists():
             progress.update(task, description="[yellow]Initializing database for the first time...")
             db.init_db()
@@ -90,7 +90,7 @@ def query(
     typer.echo(f"Searching for: {search_term}")
     
     # Initialize DB if it doesn't exist
-    db_path = Path("~/.yt-scribe/yt-scribe.db").expanduser()
+    db_path = Path("~/.ytq/ytq.db").expanduser()
     if not db_path.exists():
         console.print("[yellow]Initializing database for the first time...[/]")
         db.init_db()
@@ -198,7 +198,7 @@ def summary(
     console = Console()
     
     # Initialize DB if it doesn't exist
-    db_path = Path("~/.yt-scribe/yt-scribe.db").expanduser()
+    db_path = Path("~/.ytq/ytq.db").expanduser()
     if not db_path.exists():
         console.print("[yellow]Initializing database for the first time...[/]")
         db.init_db()

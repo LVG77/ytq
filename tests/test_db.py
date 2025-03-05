@@ -6,7 +6,7 @@ import sqlite3
 import pathlib
 import tempfile
 from unittest.mock import patch, MagicMock
-from yt_scribe import db
+from ytq import db
 
 @pytest.fixture
 def temp_db():

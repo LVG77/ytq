@@ -1,5 +1,5 @@
 from typer.testing import CliRunner
-from yt_scribe.cli import app
+from ytq.cli import app
 
 
 def test_version():
@@ -7,4 +7,4 @@ def test_version():
     with runner.isolated_filesystem():
         result = runner.invoke(app, ["--version"])
         assert result.exit_code == 0
-        assert "yt-scribe version" in result.output
+        assert "ytq version" in result.output

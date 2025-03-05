@@ -1,5 +1,5 @@
 [project]
-name = "yt-scribe"
+name = "ytq"
 version = "0.1"
 description = "Build knowledge base from YouTube video transcripts"
 readme = "README.md"
@@ -29,14 +29,13 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/lvg77/yt-scribe"
-Changelog = "https://github.com/lvg77/yt-scribe/releases"
-Issues = "https://github.com/lvg77/yt-scribe/issues"
-CI = "https://github.com/lvg77/yt-scribe/actions"
+Homepage = "https://github.com/lvg77/ytq"
+Changelog = "https://github.com/lvg77/ytq/releases"
+Issues = "https://github.com/lvg77/ytq/issues"
+CI = "https://github.com/lvg77/ytq/actions"
 
 [project.scripts]
-yt-scribe = "yt_scribe.cli:app"
-yts = "yt_scribe.cli:app"
+ytq = "ytq.cli:app"
 
 [project.optional-dependencies]
 test = ["pytest"]

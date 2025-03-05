@@ -22,10 +22,10 @@ def get_db_path() -> pathlib.Path:
     Returns:
         Path to the database file
     """
-    # Create ~/.yt-scribe directory if it doesn't exist
-    db_dir = pathlib.Path.home() / ".yt-scribe"
+    # Create ~/.ytq directory if it doesn't exist
+    db_dir = pathlib.Path.home() / ".ytq"
     db_dir.mkdir(exist_ok=True)
-    return db_dir / "yt-scribe.db"
+    return db_dir / "ytq.db"
 
 def init_db() -> None:
     """

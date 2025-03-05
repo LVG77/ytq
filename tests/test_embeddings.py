@@ -7,7 +7,7 @@ import json
 from pydantic import BaseModel
 from unittest.mock import patch, MagicMock
 
-from yt_scribe.embeddings import (
+from ytq.embeddings import (
     generate_embeddings, 
     VoyageaiEmbedding, 
     OpenAIEmbedding

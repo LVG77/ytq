@@ -5,7 +5,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 from pydantic import BaseModel
 import json
-from yt_scribe.llm import (summarize_transcript,
+from ytq.llm import (summarize_transcript,
     _summarize_with_openai,
     _summarize_with_anthropic,
     YTSummarize
@@ -59,7 +59,7 @@ def valid_summary():
 import os
 import pytest
 from unittest.mock import patch, MagicMock
-from yt_scribe.llm import _summarize_with_openai, YTSummarize
+from ytq.llm import _summarize_with_openai, YTSummarize
 
 @patch('openai.OpenAI')
 def test__summarize_with_openai_success(mock_openai, valid_summary):

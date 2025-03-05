@@ -2,7 +2,7 @@
 Tests for the core module functionality.
 """
 import pytest
-from yt_scribe import core
+from ytq import core
 
 def test_download_transcript():
     """Test transcript download function."""

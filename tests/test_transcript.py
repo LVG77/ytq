@@ -3,7 +3,7 @@ Tests for the transcript download functionality.
 """
 import pytest
 from unittest.mock import patch, MagicMock
-from yt_scribe.core import download_transcript, parse_vtt_transcript
+from ytq.core import download_transcript, parse_vtt_transcript
 
 @pytest.mark.parametrize("url", [
     "not-a-url",

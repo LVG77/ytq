@@ -4,7 +4,7 @@ Tests for transcript chunking functionality.
 import pytest
 from unittest.mock import patch, MagicMock
 import json
-from yt_scribe.core import chunk_transcript, chunk_by_sentences
+from ytq.core import chunk_transcript, chunk_by_sentences
 
 @pytest.fixture
 def metadata():
