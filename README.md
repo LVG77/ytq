@@ -26,13 +26,13 @@ pip install ytq
 
 If you are using `uv` then you can run directly the cli in temporary enviironment like so:
 ```bash
-uvx yts <command> <args>
+uvx ytq <command> <args>
 ```
 or you can also install it as a tool:
 ```bash
 uv tool install ytq
 # and then
-yts <command> <args>
+ytq <command> <args>
 ```
 
 ## Usage
