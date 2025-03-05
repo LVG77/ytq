@@ -13,7 +13,7 @@ Build knowledge base from YouTube video transcripts
 
 - Downloads and extracts transcripts from YouTube videos
 - Uses LLMs to generate structured summaries
-- Creates embeddings for semantic search
+- Each transcript is split into multiple chunks (subsections). Each section preserves its start and end times timestemps. Then chunks are embedded using openai 'text-embedding-3-small' model. Created embeddings are used when `--semantic` search flag is enabled.
 - Stores everything in a searchable SQLite database
 - Provides a CLI for adding videos, searching, and viewing summaries
 
@@ -55,6 +55,7 @@ Example:
 ```bash
 ytq add https://youtube.com/watch?v=example --chunk-size 1500 --provider anthropic
 ```
+If you try storing a video that is already in the db, the old version is removed and replaced with the new version.
 
 ### Searching the Knowledge Base
 
