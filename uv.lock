@@ -1510,7 +1510,7 @@ wheels = [
 ]
 
 [[package]]
-name = "yt-scribe"
+name = "ytq"
 version = "0.1"
 source = { editable = "." }
 dependencies = [

@@ -13,7 +13,7 @@ def temp_db():
     """Create a temporary database for testing."""
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = pathlib.Path(temp_dir) / "test.db"
-        with patch('yt_scribe.db.get_db_path', return_value=temp_path):
+        with patch('ytq.db.get_db_path', return_value=temp_path):
             db.init_db()
             yield temp_path
 

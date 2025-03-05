@@ -164,7 +164,7 @@ def test__summarize_with_anthropic_api_key_missing():
             _summarize_with_anthropic("Any prompt", YTSummarize)
 
 
-@patch('yt_scribe.llm._summarize_with_openai')
+@patch('ytq.llm._summarize_with_openai')
 def test_summarize_transcript_openai(mock_openai, sample_chunks, sample_metadata, valid_summary):
     # Configure the mock to return the sample summary.
     mock_openai.return_value = valid_summary
@@ -181,7 +181,7 @@ def test_summarize_transcript_openai(mock_openai, sample_chunks, sample_metadata
     mock_openai.assert_called_once()
     assert result == valid_summary
 
-@patch('yt_scribe.llm._summarize_with_anthropic')
+@patch('ytq.llm._summarize_with_anthropic')
 def test_summarize_transcript_anthropic(mock_anthropic, sample_chunks, sample_metadata, valid_summary):
     # Configure the mock to return the sample summary.
     mock_anthropic.return_value = valid_summary
