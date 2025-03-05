@@ -221,6 +221,11 @@ def summary(
     if video.get('tldr'):
         console.print(f"\n[bold]TL;DR:[/bold] {video['tldr']}")
     
+    # Display video description if available
+    if video.get('description'):
+        console.print(f"\n[bold]Description:[/bold]")
+        console.print(Markdown(video['description']))
+
     # Display full summary in a panel
     if video.get('summary'):
         console.print("\n[bold]Summary:[/bold]")

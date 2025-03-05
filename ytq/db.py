@@ -78,6 +78,7 @@ def init_db() -> None:
     CREATE VIRTUAL TABLE IF NOT EXISTS videos_fts USING fts5(
         video_id,
         title,
+        video_description,
         summary,
         tldr,
         tags,
@@ -88,8 +89,8 @@ def init_db() -> None:
     # Create triggers to keep videos_fts in sync with videos
     cursor.execute('''
     CREATE TRIGGER IF NOT EXISTS videos_ai AFTER INSERT ON videos BEGIN
-        INSERT INTO videos_fts(video_id, title, summary, tldr, tags, full_transcript)
-        VALUES (new.video_id, new.title, new.summary, new.tldr, new.tags, new.full_transcript);
+        INSERT INTO videos_fts(video_id, title, video_description, summary, tldr, tags, full_transcript)
+        VALUES (new.video_id, new.title, new.video_description, new.summary, new.tldr, new.tags, new.full_transcript);
     END;
     ''')
     
@@ -102,8 +103,8 @@ def init_db() -> None:
     cursor.execute('''
     CREATE TRIGGER IF NOT EXISTS videos_au AFTER UPDATE ON videos BEGIN
         DELETE FROM videos_fts WHERE video_id = old.video_id;
-        INSERT INTO videos_fts(video_id, title, summary, tldr, tags, full_transcript)
-        VALUES (new.video_id, new.title, new.summary, new.tldr, new.tags, new.full_transcript);
+        INSERT INTO videos_fts(video_id, title, video_description, summary, tldr, tags, full_transcript)
+        VALUES (new.video_id, new.title, new.video_description, new.summary, new.tldr, new.tags, new.full_transcript);
     END;
     ''')
     
