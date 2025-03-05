@@ -189,3 +189,40 @@ def test_parse_vtt_transcript():
     assert entries[1]['text'] == "Second line with continuation"
     assert entries[2]['start'] == 5.10
     assert entries[2]['text'] == "Third line some text"
+
+
+def test_parse_vtt_transcript2():
+    """Test the VTT transcript parsing function with a different VTT format."""
+    vtt_data = """
+    WEBVTT
+    Kind: captions
+    Language: en
+
+    00:00:00.780 --> 00:00:05.940
+    Hi everybody and welcome to Lesson 17&nbsp;
+    of Practical Deep Learning for Coders.&nbsp;
+
+    00:00:07.260 --> 00:00:12.720
+    I'm really excited about what we're going&nbsp;
+    to look at over the next lesson or two.&nbsp;
+
+    00:00:13.380 --> 00:00:16.440
+    It's actually been turning out really&nbsp;
+    well, much better than I could have hoped.&nbsp;
+
+    00:00:16.440 --> 00:00:19.680
+    So I can't wait to dive in.
+    Before I do, I'm just going&nbsp;&nbsp;
+    """
+    
+    entries = parse_vtt_transcript(vtt_data)
+    
+    assert len(entries) == 4
+    assert entries[0]['start'] == 0.78
+    assert entries[0]['text'] == "Hi everybody and welcome to Lesson 17 of Practical Deep Learning for Coders."
+    assert entries[1]['start'] == 7.26
+    assert entries[1]['text'] == "I'm really excited about what we're going to look at over the next lesson or two."
+    assert entries[2]['start'] == 13.38
+    assert entries[2]['text'] == "It's actually been turning out really well, much better than I could have hoped."
+    assert entries[3]['start'] == 16.44
+    assert entries[3]['text'] == "So I can't wait to dive in. Before I do, I'm just going"

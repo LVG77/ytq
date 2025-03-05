@@ -3,7 +3,6 @@ Core functionality for transcript download, chunking, and LLM summarization.
 """
 import yt_dlp
 import re
-from typing import Any
 
 def download_transcript(url: str) -> dict:
     """
@@ -186,7 +185,7 @@ def parse_vtt_transcript(vtt_data: str) -> list:
                     # If the last entry is the same as the current text, skip adding it
                     pass
                 else:
-                    current_text.append(line)
+                    current_text.append(line.replace('&nbsp;', ''))
             i += 1
         else:
             # Skip lines until we find a timestamp
