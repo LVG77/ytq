@@ -184,7 +184,7 @@ def query(
                 console.print("\n" + "-" * 50)
 
 
-@app.command()
+@app.command(context_settings={"ignore_unknown_options": True})
 def summary(
     video_id: Annotated[str, typer.Argument(help="Video ID to display summary for")]
 ):
@@ -252,7 +252,7 @@ def summary(
     console.print(f"[dim]Processed at: {video.get('processed_at', '')}[/dim]")
 
 
-@app.command()
+@app.command(context_settings={"ignore_unknown_options": True})
 def delete(
     video_id: Annotated[str, typer.Argument(help="Video ID to display summary for")]
 ):
